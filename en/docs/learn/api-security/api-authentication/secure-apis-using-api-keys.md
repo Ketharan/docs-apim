@@ -144,11 +144,11 @@ Follow the instructions below to import the public certificate into the client t
 
 1. Navigate to the `<API-M_HOME>/repository/resources/security/` directory.
 
-2. Run the following command to export the public certificate from WSO2 API Manager's key store (`wso2carbon.jks`). 
+2. Run the following command to export the public certificate from WSO2 API Manager's keystore (`wso2carbon.jks`). 
 
     `keytool -export -alias wso2carbon -file wso2.crt -keystore wso2carbon.jks`
 
-3. Enter `wso2carbon` as the default password of the key store when prompted.
+3. Enter `wso2carbon` as the default password of the keystore when prompted.
 
 4. Run the following command to import the public certificate into the trust store. 
 
@@ -172,6 +172,48 @@ By default, the alias name is `gateway_certificate_alias`. Follow the instructio
      [apim.devportal]
      api_key_alias = "<alias-name>"
      ```
+
+### Configuring a custom Keystore to sign an API Key
+
+By default, the primary Keystore is used to sign the API Key. In addition, the user can configure a custom Keystore to sign the API Keys.
+
+Follow the instructions below to configure a custom Keystore to sign the API Keys:
+
+1. Add the custom Keystore into the `<API-M_HOME>/repository/resources/security` directory.
+
+2. Export the public certificate from the custom Keystore and import that into the client trust store as described in [Importing the public certificate into the client truststore]({{base_path}}/learn/api-security/api-authentication/secure-apis-using-api-keys/#importing-the-public-certificate-into-the-client-trust-store).
+
+3. Add the custom Keystore configuration in the `<API-M_HOME>/repository/conf/deployment.toml` file as follows:
+
+    ``` tab="Format"
+    [custom_keystore.KeyStoreName]
+    file_name = "<key-store-file-name>"
+    type = "<type>"
+    password = "<key-store-password>"
+    alias = "<alias-name>"
+    key_password = "<private-key-password>"
+    ```
+
+    ``` tab="Example"
+    [custom_keystore.KeySignKeyStore]
+    file_name = "apikeysigner.jks"
+    type = "JKS"
+    password = "wso2carbon"
+    alias = "apikeysigner"
+    key_password = "wso2carbon"
+    ```
+
+    !!! note
+         The Keystore name field is taken from the configuration header, which is `[custom_keystore.KeySignKeyStore]`. The rightmost part divided by the full stop refers to the Keystore name. In the above example, the keystore name is `KeySignKeyStore`.
+
+4. Define the custom Keystore name in the `<API-M_HOME>/repository/conf/deployment.toml` file under `[apim.devportal]` as follows:
+
+     ```
+     [apim.devportal]
+     api_key_keystore = "KeySignKeyStore"
+     ```
+
+5. Configure the alias name value as described in [Changing the alias name in the JWT]({{base_path}}/learn/api-security/api-authentication/secure-apis-using-api-keys/#changing-the-alias-name-in-the-jwt).
 
 ### API key restriction for IP address and HTTP referrer
 
